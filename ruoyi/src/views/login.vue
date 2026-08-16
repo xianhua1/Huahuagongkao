@@ -1,10 +1,10 @@
-<template>
+﻿<template>
   <div class="login">
     <el-form ref="loginRef" :model="loginForm" :rules="loginRules" class="login-form">
       <div class="login-logo">
         <img src="@/assets/logo/logo.png" alt="logo" />
       </div>
-      <h3 class="title">公考刷题</h3>
+      <h3 class="title">花花公考刷题</h3>
       <el-form-item prop="username">
         <el-input
           v-model="loginForm.username"

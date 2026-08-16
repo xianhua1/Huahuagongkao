@@ -1,4 +1,4 @@
-# 🐼 花花公考（Huahuagongkao）
+# 🐼 花花公考刷题（Huahuagongkao）
 
 > 国考行测一站式刷题备考平台 —— 真题 · 教程 · 备考工具，全都有。
 
@@ -62,17 +62,6 @@
 
 ---
 
-## 🌐 外网访问
-
-本机部署后可通过 [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/)（免费）对外开放：
-
-```bash
-cloudflared.exe tunnel --url http://127.0.0.1:8090
-```
-
-启动后输出 `https://xxxx.trycloudflare.com` 即为公网地址（免费隧道域名随机，重启后变化；自定义域名需注册 Cloudflare 账号 + 自有域名接入）。
-
----
 
 ## 📁 项目结构
 
