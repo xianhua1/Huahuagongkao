@@ -1,0 +1,28 @@
+# 依赖与构建产物
+node_modules/
+dist/
+target/
+logs/
+*.log
+
+# 本地大数据（不入库；data/sql 除外）
+data/images/
+data/images_sydw/
+data/parsed/
+data/parsed_sydw/
+data/xingce_docx/
+data/ocr_texts/
+
+# 运行环境与二进制
+*.exe
+tools/mysql57/
+tools/redis/
+tools/zulu8/
+tools/apache-maven-3.9.9/
+cloudflared-run/
+
+# 系统与编辑器
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

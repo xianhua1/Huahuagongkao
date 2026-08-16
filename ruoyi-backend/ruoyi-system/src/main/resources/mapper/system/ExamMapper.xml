@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.ExamMapper">
+
+    <resultMap type="ExamPaper" id="ExamPaperResult">
+        <id     property="id"             column="id"            />
+        <result property="paperCode"      column="paper_code"    />
+        <result property="title"          column="title"         />
+        <result property="year"           column="year"          />
+        <result property="version"        column="version"       />
+        <result property="subject"        column="subject"       />
+        <result property="questionCount"  column="question_count"/>
+        <result property="createTime"     column="create_time"   />
+        <result property="updateTime"     column="update_time"   />
+    </resultMap>
+
+    <resultMap type="ExamMaterial" id="ExamMaterialResult">
+        <id     property="id"        column="id"         />
+        <result property="paperId"   column="paper_id"   />
+        <result property="section"   column="section"    />
+        <result property="title"     column="title"      />
+        <result property="content"   column="content"    />
+        <result property="sortOrder" column="sort_order" />
+    </resultMap>
+
+    <resultMap type="ExamQuestion" id="ExamQuestionResult">
+        <id     property="id"         column="id"          />
+        <result property="paperId"    column="paper_id"    />
+        <result property="materialId" column="material_id" />
+        <result property="section"    column="section"     />
+        <result property="qno"        column="qno"         />
+        <result property="qorder"     column="qorder"      />
+        <result property="stem"       column="stem"        />
+        <result property="options"    column="options"     />
+        <result property="answer"     column="answer"      />
+        <result property="analysis"   column="analysis"    />
+        <result property="hasImage"   column="has_image"   />
+    </resultMap>
+
+    <sql id="paperWhere">
+        <where>
+            <if test="title != null and title != ''">AND title LIKE CONCAT('%', #{title}, '%')</if>
+            <if test="year != null">AND year = #{year}</if>
+            <if test="version != null and version != ''">AND version = #{version}</if>
+            <if test="subject != null and subject != ''">AND subject = #{subject}</if>
+        </where>
+    </sql>
+
+    <select id="selectPaperList" parameterType="ExamPaper" resultMap="ExamPaperResult">
+        SELECT id, paper_code, title, year, version, subject, question_count, create_time, update_time
+        FROM exam_paper
+        <include refid="paperWhere"/>
+        ORDER BY year DESC, id ASC
+    </select>
+
+    <select id="selectPaperById" parameterType="Long" resultMap="ExamPaperResult">
+        SELECT id, paper_code, title, year, version, subject, question_count, create_time, update_time
+        FROM exam_paper WHERE id = #{paperId}
+    </select>
+
+    <select id="selectMaterialsByPaperId" parameterType="Long" resultMap="ExamMaterialResult">
+        SELECT id, paper_id, section, title, content, sort_order
+        FROM exam_material WHERE paper_id = #{paperId} ORDER BY sort_order ASC
+    </select>
+
+    <select id="selectMaterialsByIds" resultMap="ExamMaterialResult">
+        SELECT id, paper_id, section, title, content, sort_order
+        FROM exam_material WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </select>
+
+    <select id="selectQuestionsByPaperId" parameterType="Long" resultMap="ExamQuestionResult">
+        SELECT id, paper_id, material_id, section, qno, qorder, stem, options, answer, analysis, has_image
+        FROM exam_question WHERE paper_id = #{paperId} ORDER BY qorder ASC
+    </select>
+
+    <select id="selectQuestionById" parameterType="Long" resultMap="ExamQuestionResult">
+        SELECT id, paper_id, material_id, section, qno, qorder, stem, options, answer, analysis, has_image
+        FROM exam_question WHERE id = #{questionId}
+    </select>
+
+    <select id="selectRandomQuestions" resultMap="ExamQuestionResult">
+        SELECT id, paper_id, material_id, section, qno, qorder, stem, options, answer, analysis, has_image
+        FROM exam_question
+        WHERE answer != '' AND answer IS NOT NULL
+        <if test="section != null and section != ''">AND section = #{section}</if>
+        ORDER BY RAND() LIMIT #{count}
+    </select>
+
+    <sql id="questionWhere">
+        <where>
+            <if test="paperId != null">AND paper_id = #{paperId}</if>
+            <if test="materialId != null">AND material_id = #{materialId}</if>
+            <if test="section != null and section != ''">AND section = #{section}</if>
+            <if test="answerEmpty != null and answerEmpty == &quot;1&quot;">AND (answer IS NULL OR answer = '')</if>
+            <if test="hasImage != null">AND has_image = #{hasImage}</if>
+        </where>
+    </sql>
+
+    <select id="selectQuestionPage" parameterType="ExamQuestion" resultMap="ExamQuestionResult">
+        SELECT id, paper_id, material_id, section, qno, qorder, stem, options, answer, analysis, has_image
+        FROM exam_question
+        <include refid="questionWhere"/>
+        ORDER BY paper_id ASC, qorder ASC
+    </select>
+
+    <update id="updateQuestion" parameterType="ExamQuestion">
+        UPDATE exam_question
+        <set>
+            <if test="answer != null">answer = #{answer},</if>
+            <if test="analysis != null">analysis = #{analysis},</if>
+            <if test="section != null">section = #{section},</if>
+            <if test="stem != null">stem = #{stem},</if>
+            <if test="options != null">options = #{options},</if>
+            <if test="hasImage != null">has_image = #{hasImage},</if>
+            <if test="materialId != null">material_id = #{materialId},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateMaterialContent" parameterType="ExamMaterial">
+        UPDATE exam_material SET content = #{content}, title = #{title} WHERE id = #{id}
+    </update>
+
+    <select id="selectMaterialById" parameterType="Long" resultMap="ExamMaterialResult">
+        SELECT id, paper_id, section, title, content, sort_order
+        FROM exam_material WHERE id = #{materialId}
+    </select>
+
+    <insert id="insertQuestion" parameterType="ExamQuestion" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO exam_question (paper_id, material_id, section, qno, qorder, stem, options, answer, analysis, has_image, create_time)
+        VALUES (#{paperId}, #{materialId}, #{section}, #{qno}, #{qorder}, #{stem}, #{options}, #{answer}, #{analysis}, #{hasImage}, NOW())
+    </insert>
+
+    <select id="selectMaxQorder" parameterType="Long" resultType="int">
+        SELECT IFNULL(MAX(qorder), 0) FROM exam_question WHERE paper_id = #{paperId}
+    </select>
+
+    <insert id="insertMaterial" parameterType="ExamMaterial" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO exam_material (paper_id, section, title, content, sort_order)
+        VALUES (#{paperId}, #{section}, #{title}, #{content}, 9999)
+    </insert>
+
+    <insert id="insertPaper" parameterType="ExamPaper" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO exam_paper (paper_code, title, year, version, subject, question_count, create_time)
+        VALUES (#{paperCode}, #{title}, #{year}, #{version}, #{subject}, 0, NOW())
+    </insert>
+
+    <insert id="insertRecord" parameterType="ExamRecord">
+        INSERT INTO exam_record (user_id, question_id, user_answer, is_correct, answered_time)
+        VALUES (#{userId}, #{questionId}, #{userAnswer}, #{isCorrect}, NOW())
+        ON DUPLICATE KEY UPDATE user_answer = VALUES(user_answer),
+                                is_correct = VALUES(is_correct),
+                                answered_time = NOW()
+    </insert>
+
+    <select id="selectRecord" resultMap="ExamRecordResult">
+        SELECT id, user_id, question_id, user_answer, is_correct, answered_time
+        FROM exam_record WHERE user_id = #{userId} AND question_id = #{questionId}
+    </select>
+
+    <resultMap type="ExamRecord" id="ExamRecordResult">
+        <id     property="id"           column="id"            />
+        <result property="userId"       column="user_id"       />
+        <result property="questionId"   column="question_id"   />
+        <result property="userAnswer"   column="user_answer"   />
+        <result property="isCorrect"    column="is_correct"    />
+        <result property="answeredTime" column="answered_time" />
+    </resultMap>
+
+    <select id="selectWrongList" parameterType="Long" resultType="java.util.HashMap">
+        SELECT q.id AS questionId, q.paper_id AS paperId, q.section AS section, q.qorder AS qorder,
+               q.qno AS qno, q.stem AS stem, q.options AS options, q.answer AS answer,
+               q.analysis AS analysis, q.material_id AS materialId, q.has_image AS hasImage,
+               m.content AS materialContent, m.title AS materialTitle,
+               r.user_answer AS userAnswer, r.answered_time AS answeredTime,
+               p.title AS paperTitle, p.year AS year, p.version AS version
+        FROM exam_record r
+        JOIN exam_question q ON q.id = r.question_id
+        JOIN exam_paper p ON p.id = q.paper_id
+        LEFT JOIN exam_material m ON m.id = q.material_id
+        WHERE r.user_id = #{userId} AND r.is_correct = 0
+        ORDER BY r.answered_time DESC
+    </select>
+
+    <select id="selectAnsweredRecords" resultType="java.util.HashMap">
+        SELECT r.question_id AS questionId, r.user_answer AS userAnswer, r.is_correct AS isCorrect
+        FROM exam_record r
+        JOIN exam_question q ON q.id = r.question_id
+        WHERE r.user_id = #{userId} AND q.paper_id = #{paperId}
+    </select>
+
+    <delete id="deleteRecord">
+        DELETE FROM exam_record WHERE user_id = #{userId} AND question_id = #{questionId}
+    </delete>
+
+    <delete id="deleteWrongRecords">
+        DELETE FROM exam_record WHERE user_id = #{userId} AND is_correct = 0
+    </delete>
+
+    <select id="selectPaperStats" resultType="java.util.HashMap">
+        SELECT
+          (SELECT COUNT(*) FROM exam_question WHERE paper_id = #{paperId}) AS total,
+          (SELECT COUNT(*) FROM exam_record r JOIN exam_question q ON q.id = r.question_id
+             WHERE r.user_id = #{userId} AND q.paper_id = #{paperId}) AS answered,
+          (SELECT COUNT(*) FROM exam_record r JOIN exam_question q ON q.id = r.question_id
+             WHERE r.user_id = #{userId} AND q.paper_id = #{paperId} AND r.is_correct = 1) AS correct
+    </select>
+
+    <select id="selectDashboardStats" resultType="java.util.HashMap">
+        SELECT
+          (SELECT COUNT(*) FROM exam_paper) AS papers,
+          (SELECT COUNT(*) FROM exam_question) AS questions,
+          (SELECT COUNT(*) FROM exam_material) AS materials,
+          (SELECT COUNT(*) FROM exam_record WHERE user_id = #{userId}) AS answered,
+          (SELECT COUNT(*) FROM exam_record WHERE user_id = #{userId} AND is_correct = 1) AS correct,
+          (SELECT COUNT(*) FROM exam_record WHERE user_id = #{userId} AND is_correct = 0) AS wrong
+    </select>
+
+    <select id="selectSectionStats" resultType="java.util.HashMap">
+        SELECT q.section AS section, COUNT(*) AS total,
+               SUM(CASE WHEN r.is_correct = 1 THEN 1 ELSE 0 END) AS correct
+        FROM exam_record r
+        JOIN exam_question q ON q.id = r.question_id
+        WHERE r.user_id = #{userId}
+        GROUP BY q.section
+        ORDER BY total DESC
+    </select>
+
+</mapper>
