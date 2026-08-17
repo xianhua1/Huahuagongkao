@@ -38,6 +38,9 @@
         <p>国考行测与事业单位职测的每一个模块知识点，都整理在这里。</p>
       </div>
     </main>
+
+    <!-- 悬浮返回顶部 -->
+    <el-backtop target=".docs-main" :bottom="56" :right="28" :visibility-height="320" />
   </div>
 </template>
 
@@ -67,6 +70,9 @@ function applyHash() {
 
 onMounted(() => {
   applyHash()
+  // 支持首页搜索跳转携带关键词（?kw=xxx）
+  const q = new URLSearchParams(location.search).get('kw')
+  if (q) keyword.value = q
   window.addEventListener('hashchange', applyHash)
 })
 onBeforeUnmount(() => window.removeEventListener('hashchange', applyHash))

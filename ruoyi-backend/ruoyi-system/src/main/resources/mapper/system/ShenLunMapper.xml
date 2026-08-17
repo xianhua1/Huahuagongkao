@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.ShenLunMapper">
+
+    <resultMap id="PaperResult" type="ShenLunPaper">
+        <id property="id" column="id"/>
+        <result property="paperCode" column="paper_code"/>
+        <result property="title" column="title"/>
+        <result property="year" column="year"/>
+        <result property="version" column="version"/>
+        <result property="questionCount" column="question_count"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <resultMap id="MaterialResult" type="ShenLunMaterial">
+        <id property="id" column="id"/>
+        <result property="paperId" column="paper_id"/>
+        <result property="mNo" column="m_no"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+    </resultMap>
+
+    <resultMap id="QuestionResult" type="ShenLunQuestion">
+        <id property="id" column="id"/>
+        <result property="paperId" column="paper_id"/>
+        <result property="qno" column="qno"/>
+        <result property="title" column="title"/>
+        <result property="score" column="score"/>
+        <result property="wordLimit" column="word_limit"/>
+        <result property="refAnswer" column="ref_answer"/>
+    </resultMap>
+
+    <sql id="paperWhere">
+        <where>
+            <if test="title != null and title != ''">AND title LIKE CONCAT('%', #{title}, '%')</if>
+            <if test="year != null">AND year = #{year}</if>
+            <if test="version != null and version != ''">AND version = #{version}</if>
+        </where>
+    </sql>
+
+    <select id="selectPaperList" parameterType="ShenLunPaper" resultMap="PaperResult">
+        SELECT id, paper_code, title, year, version, question_count, create_time
+        FROM shenlun_paper
+        <include refid="paperWhere"/>
+        ORDER BY year DESC, id ASC
+    </select>
+
+    <select id="selectPaperPage" parameterType="ShenLunPaper" resultMap="PaperResult">
+        SELECT id, paper_code, title, year, version, question_count, create_time
+        FROM shenlun_paper
+        <include refid="paperWhere"/>
+        ORDER BY year DESC, id ASC
+    </select>
+
+    <select id="selectPaperById" parameterType="Long" resultMap="PaperResult">
+        SELECT id, paper_code, title, year, version, question_count, create_time
+        FROM shenlun_paper WHERE id = #{paperId}
+    </select>
+
+    <select id="selectMaterialsByPaperId" parameterType="Long" resultMap="MaterialResult">
+        SELECT id, paper_id, m_no, title, content FROM shenlun_material
+        WHERE paper_id = #{paperId} ORDER BY m_no ASC
+    </select>
+
+    <select id="selectQuestionsByPaperId" parameterType="Long" resultMap="QuestionResult">
+        SELECT id, paper_id, qno, title, score, word_limit, ref_answer FROM shenlun_question
+        WHERE paper_id = #{paperId} ORDER BY qno ASC
+    </select>
+
+    <select id="selectQuestionById" parameterType="Long" resultMap="QuestionResult">
+        SELECT id, paper_id, qno, title, score, word_limit, ref_answer FROM shenlun_question
+        WHERE id = #{questionId}
+    </select>
+
+    <select id="selectMaterialById" parameterType="Long" resultMap="MaterialResult">
+        SELECT id, paper_id, m_no, title, content FROM shenlun_material WHERE id = #{materialId}
+    </select>
+
+    <insert id="insertPaper" parameterType="ShenLunPaper" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO shenlun_paper (paper_code, title, year, version, question_count, create_time)
+        VALUES (#{paperCode}, #{title}, #{year}, #{version}, #{questionCount}, NOW())
+    </insert>
+
+    <update id="updatePaper" parameterType="ShenLunPaper">
+        UPDATE shenlun_paper
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="year != null">year = #{year},</if>
+            <if test="version != null">version = #{version},</if>
+            <if test="questionCount != null">question_count = #{questionCount},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deletePaper" parameterType="Long">
+        DELETE FROM shenlun_paper WHERE id = #{paperId}
+    </delete>
+
+    <insert id="insertMaterial" parameterType="ShenLunMaterial" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO shenlun_material (paper_id, m_no, title, content)
+        VALUES (#{paperId}, #{mNo}, #{title}, #{content})
+    </insert>
+
+    <update id="updateMaterial" parameterType="ShenLunMaterial">
+        UPDATE shenlun_material
+        <set>
+            <if test="mNo != null">m_no = #{mNo},</if>
+            <if test="title != null">title = #{title},</if>
+            <if test="content != null">content = #{content},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteMaterial" parameterType="Long">
+        DELETE FROM shenlun_material WHERE id = #{materialId}
+    </delete>
+
+    <delete id="deleteMaterialsByPaperId" parameterType="Long">
+        DELETE FROM shenlun_material WHERE paper_id = #{paperId}
+    </delete>
+
+    <insert id="insertQuestion" parameterType="ShenLunQuestion" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO shenlun_question (paper_id, qno, title, score, word_limit, ref_answer)
+        VALUES (#{paperId}, #{qno}, #{title}, #{score}, #{wordLimit}, #{refAnswer})
+    </insert>
+
+    <update id="updateQuestion" parameterType="ShenLunQuestion">
+        UPDATE shenlun_question
+        <set>
+            <if test="qno != null">qno = #{qno},</if>
+            <if test="title != null">title = #{title},</if>
+            <if test="score != null">score = #{score},</if>
+            <if test="wordLimit != null">word_limit = #{wordLimit},</if>
+            <if test="refAnswer != null">ref_answer = #{refAnswer},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteQuestion" parameterType="Long">
+        DELETE FROM shenlun_question WHERE id = #{questionId}
+    </delete>
+
+    <delete id="deleteQuestionsByPaperId" parameterType="Long">
+        DELETE FROM shenlun_question WHERE paper_id = #{paperId}
+    </delete>
+
+    <insert id="insertAnswer" parameterType="ShenLunAnswer" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO shenlun_answer (user_id, paper_id, content, grade_json, status, create_time)
+        VALUES (#{userId}, #{paperId}, #{content}, #{gradeJson}, #{status}, NOW())
+    </insert>
+
+    <select id="selectAnswersByUser" parameterType="Long" resultType="java.util.HashMap">
+        SELECT a.id, a.paper_id AS paperId, a.content, a.grade_json AS gradeJson, a.status, a.create_time AS createTime,
+               p.title AS paperTitle, p.year
+        FROM shenlun_answer a
+        JOIN shenlun_paper p ON p.id = a.paper_id
+        WHERE a.user_id = #{userId}
+        ORDER BY a.create_time DESC
+    </select>
+</mapper>
