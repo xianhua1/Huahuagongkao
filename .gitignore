@@ -1,28 +1,51 @@
-﻿# 渚濊禆涓庢瀯寤轰骇鐗?node_modules/
+# 依赖与构建产物
+node_modules/
 dist/
 target/
 logs/
 *.log
 
-# 鏈湴澶ф暟鎹紙涓嶅叆搴擄紱data/sql 闄ゅ锛?data/images/
+# 本地大数据（不入库；data/sql 除外）
+data/images/
 data/images_sydw/
 data/parsed/
 data/parsed_sydw/
 data/xingce_docx/
 data/ocr_texts/
+data/shenlun_docx/
+data/shenlun_txt/
+data/sydw_docx/
 
-# 杩愯鐜涓庝簩杩涘埗
+# saduck 探查中间产物
+data/saduck_js/
+data/saduck_js2/
+data/saduck_js3/
+data/probe*.txt
+data/formula_sample.bin
+data/saduck_app.js
+data/saduck_hword_raw.txt
+data/saduck_sample_raw.json
+data/saduck_sl_list.json
+data/saduck_sl_sample.json
+
+# 运行环境与二进制
 *.exe
+*.zip
 tools/mysql57/
 tools/redis/
 tools/zulu8/
 tools/apache-maven-3.9.9/
+tools/__pycache__/
 cloudflared-run/
 
-# 绯荤粺涓庣紪杈戝櫒
+# 系统与编辑器
 .DS_Store
 Thumbs.db
 .idea/
 .vscode/
 
 data/llm_config.json
+tools/shot-*.png
+tools/logo-check.png
+tools/edge-*/
+tools/verify_tools_dbg.mjs

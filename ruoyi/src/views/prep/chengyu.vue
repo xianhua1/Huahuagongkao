@@ -1,6 +1,6 @@
 <template>
   <div class="tab">
-    <PageHead icon="reading" title="高频成语积累" desc="共 {{ chengyu.length }} 个高频/易错/辨析成语，每天学 10 个，打卡式积累。" />
+    <PageHead icon="reading" title="高频成语积累" :desc="`共 ${chengyu.length} 个高频/易错/辨析成语，每天学 10 个，打卡式积累。`" />
 <!-- 模式切换 -->
     <div class="mode-bar">
       <el-radio-group v-model="mode" size="small">

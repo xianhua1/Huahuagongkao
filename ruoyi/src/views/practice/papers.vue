@@ -4,14 +4,27 @@
       <div class="page-head">
         <div>
           <h2 class="page-title">历年真题练习</h2>
-          <p class="page-desc">2000-2022 年国家公务员考试《行测》真题，含资料分析材料联动与逐题解析</p>
+          <p class="page-desc">国考 / 省考 / 事业单位历年《行测》真题，含资料分析材料联动与逐题解析</p>
         </div>
-        <div class="page-actions">
-          <el-radio-group v-model="subject" @change="loadPapers" style="margin-right: 12px">
-            <el-radio-button value="">全部</el-radio-button>
-            <el-radio-button value="行测">国考行测</el-radio-button>
-            <el-radio-button value="职测">事业单位职测</el-radio-button>
-          </el-radio-group>
+      </div>
+
+      <!-- 便捷搜索：分类标签 + 年份 + 查询 -->
+      <div class="quick-search">
+        <div class="qs-tags">
+          <span
+            class="qs-tag"
+            :class="{ active: category === '' }"
+            @click="category = ''; loadPapers()"
+          >全部</span>
+          <span
+            v-for="c in categories"
+            :key="c"
+            class="qs-tag"
+            :class="{ active: category === c }"
+            @click="category = c; loadPapers()"
+          >{{ c }}</span>
+        </div>
+        <div class="qs-actions">
           <el-select v-model="year" placeholder="全部年份" clearable style="width: 130px" @change="loadPapers">
             <el-option v-for="y in years" :key="y" :label="y + ' 年'" :value="y" />
           </el-select>
@@ -26,7 +39,6 @@
           <div class="paper-info">
             <div class="paper-title-row">
               <span class="paper-title">{{ p.title }}</span>
-              <el-tag v-if="p.subject === '职测'" size="small" type="warning">职测</el-tag>
               <el-tag size="small" :type="tagType(p.year)">{{ p.year }}</el-tag>
               <el-tag size="small" type="info">{{ p.version }}</el-tag>
             </div>
@@ -67,8 +79,12 @@ const papers = ref([])
 const stats = ref({})
 const loading = ref(false)
 const year = ref(null)
-const subject = ref('')
+const category = ref('')
 const years = Array.from({ length: 26 }, (_, i) => 2000 + i)
+
+// 分类固定顺序（国考 → 各省 → 事业编）
+const CAT_ORDER = ['国考', '安徽', '福建', '甘肃', '广东', '广西', '贵州', '海南', '河北', '河南', '黑龙江', '湖北', '湖南', '吉林', '江苏', '江西', '辽宁', '内蒙古', '宁夏', '青海', '山东', '山西', '陕西', '四川', '新疆', '云南', '浙江', '北京市', '上海市', '天津市', '重庆市', '深圳市', '事业编']
+const categories = ref([])
 
 function tagType(y) {
   if (y >= 2020) return 'danger'
@@ -82,9 +98,14 @@ async function loadPapers() {
   try {
     const params = {}
     if (year.value) params.year = year.value
-    if (subject.value) params.subject = subject.value
+    if (category.value) params.version = category.value
     const list = await listPapers(params)
     papers.value = list || []
+    // 分类列表（首次全量拉取时收集）
+    if (!category.value) {
+      const exist = new Set((list || []).map(p => p.version).filter(Boolean))
+      categories.value = CAT_ORDER.filter(c => exist.has(c))
+    }
     const st = {}
     await Promise.all((list || []).map(async p => {
       try {
@@ -110,15 +131,48 @@ onMounted(loadPapers)
 </script>
 
 <style scoped>
-.page-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 18px;
-}
+.page-head { margin-bottom: 16px; }
 .page-title { margin: 0 0 6px; font-size: 20px; }
 .page-desc { margin: 0; color: var(--el-text-color-secondary); font-size: 13px; }
-.page-actions { display: flex; gap: 8px; }
+
+/* 便捷搜索 */
+.quick-search {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  background: var(--el-fill-color-light);
+  border-radius: 10px;
+  flex-wrap: wrap;
+}
+.qs-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  flex: 1;
+  min-width: 200px;
+}
+.qs-tag {
+  font-size: 12px;
+  color: var(--el-text-color-regular);
+  background: var(--el-bg-color);
+  border: 1px solid var(--el-border-color);
+  border-radius: 999px;
+  padding: 3px 12px;
+  cursor: pointer;
+  transition: all .15s;
+  user-select: none;
+}
+.qs-tag:hover { border-color: var(--el-color-primary); color: var(--el-color-primary); }
+.qs-tag.active {
+  background: var(--el-color-primary);
+  border-color: var(--el-color-primary);
+  color: #fff;
+  font-weight: 600;
+}
+.qs-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
 .paper-card {
   display: flex;
   justify-content: space-between;

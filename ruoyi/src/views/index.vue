@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="portal">
     <!-- ============ 顶部工具条 ============ -->
     <div class="topbar">

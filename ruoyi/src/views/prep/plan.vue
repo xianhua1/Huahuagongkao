@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="tab">
     <PageHead icon="calendar" title="90 天学习计划" desc="按《备考总纲》排好的完整计划，每天打卡，跟着走就不会迷茫。" />
 <!-- 进度总览 -->
@@ -35,6 +35,27 @@
         <div class="next-task-label">恭喜</div>
         <div class="next-task-text">90 天计划全部完成！保持每日一练直到考试～</div>
       </div>
+    </div>
+
+    <!-- 打卡日历 -->
+    <div class="checkin-card">
+      <div class="ci-head">
+        <div>
+          <div class="ci-title">📅 每日打卡日历</div>
+          <div class="ci-sub">本月打卡 {{ monthCount }} 天 · 连续打卡 {{ streak }} 天{{ streak >= 3 ? ' 🔥' : '' }} · 累计 {{ checkins }} 天</div>
+        </div>
+        <el-button size="small" type="primary" :disabled="checkedToday" @click="checkinToday">
+          {{ checkedToday ? '今日已打卡 ✓' : '今日打卡' }}
+        </el-button>
+      </div>
+      <el-calendar v-model="calDate">
+        <template #date-cell="{ data }">
+          <div class="cal-cell" :class="cellClass(data.day)">
+            <span class="cal-day">{{ data.day.split('-')[2] }}</span>
+            <span v-if="cellChecked(data.day)" class="cal-dot">✓</span>
+          </div>
+        </template>
+      </el-calendar>
     </div>
 
     <!-- 周计划 -->
@@ -80,8 +101,48 @@ const uid = computed(() => userStore.userId || 'guest')
 const doneSet = ref(new Set())
 const openWeeks = ref([0])
 const checkins = ref(0)
+const checkinList = ref([])
+const calDate = ref(new Date())
 
 const TOTAL = plan.reduce((n, w) => n + w.tasks.length, 0)
+
+const checkedToday = computed(() => checkinList.value.includes(today()))
+const monthCount = computed(() => {
+  const prefix = today().slice(0, 7)
+  return checkinList.value.filter(d => d.startsWith(prefix)).length
+})
+const streak = computed(() => {
+  if (!checkinList.value.includes(today())) return 0
+  let n = 1
+  const d = new Date()
+  while (true) {
+    d.setDate(d.getDate() - 1)
+    const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0')
+    if (checkinList.value.includes(key)) n++
+    else break
+  }
+  return n
+})
+
+function refreshCheckins() {
+  checkinList.value = load(uid.value, 'checkins', [])
+  checkins.value = checkinList.value.length
+}
+function checkinToday() {
+  if (checkedToday.value) return
+  addCheckin(uid.value)
+  refreshCheckins()
+  ElMessage.success('打卡成功，保持住！')
+}
+function cellChecked(day) {
+  return checkinList.value.includes(day)
+}
+function cellClass(day) {
+  const todayStr = today()
+  if (day === todayStr) return 'today'
+  if (cellChecked(day)) return 'checked'
+  return ''
+}
 
 function dayIndexOf(wi, ti) {
   let idx = 0
@@ -121,7 +182,7 @@ function toggleTask(wi, ti) {
     addCheckin(uid.value)
   }
   save(uid.value, 'planDone', [...doneSet.value])
-  checkins.value = load(uid.value, 'checkins', []).length
+  refreshCheckins()
 }
 function doNext() {
   const t = flatTasks.value.find(x => !doneSet.value.has(x.idx))
@@ -129,7 +190,7 @@ function doNext() {
     doneSet.value.add(t.idx)
     save(uid.value, 'planDone', [...doneSet.value])
     addCheckin(uid.value)
-    checkins.value = load(uid.value, 'checkins', []).length
+    refreshCheckins()
   }
 }
 function isTodayTask(wi, ti) {
@@ -138,7 +199,7 @@ function isTodayTask(wi, ti) {
 
 onMounted(() => {
   doneSet.value = new Set(load(uid.value, 'planDone', []))
-  checkins.value = load(uid.value, 'checkins', []).length
+  refreshCheckins()
   // 默认展开含“今日任务”的那一周
   const t = flatTasks.value.find(x => !doneSet.value.has(x.idx))
   if (t) {
@@ -210,4 +271,31 @@ onMounted(() => {
   border-radius: 8px; padding: 1px 8px;
 }
 .task-text { line-height: 1.6; }
+.checkin-card {
+  border: 1px solid var(--el-border-color-light);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  background: #fff;
+}
+.dark .checkin-card { background: transparent; }
+.ci-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; }
+.ci-title { font-size: 16px; font-weight: 700; }
+.ci-sub { font-size: 12px; color: var(--el-text-color-secondary); margin-top: 4px; }
+.cal-cell { position: relative; height: 56px; display: flex; align-items: center; justify-content: center; }
+.cal-cell.today .cal-day {
+  background: var(--el-color-primary); color: #fff;
+  width: 26px; height: 26px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+.cal-cell.checked .cal-day {
+  background: #f0f9eb; color: #67c23a;
+  border-radius: 8px; padding: 1px 7px; font-weight: 700;
+}
+.cal-dot {
+  position: absolute; top: 2px; right: 6px;
+  color: #67c23a; font-size: 12px; font-weight: 800;
+}
+:deep(.el-calendar__body) { padding: 8px; }
+:deep(.el-calendar-table .el-calendar-day) { padding: 2px; height: 60px; }
 </style>

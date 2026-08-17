@@ -1,6 +1,6 @@
 <template>
   <div class="tab">
-    <PageHead icon="notebook" title="申论规范词库" desc="申论小题拿分关键：把材料里的“大白话”翻译成“机关语言”。共 {{ totalPairs }} 组。" />
+    <PageHead icon="notebook" title="申论规范词库" :desc="`申论小题拿分关键：把材料里的“大白话”翻译成“机关语言”。共 ${totalPairs} 组。`" />
 <!-- 模式切换 -->
     <div class="mode-bar">
       <el-radio-group v-model="mode" size="small">
