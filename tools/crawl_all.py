@@ -2,7 +2,7 @@
 """批量爬取 saduck 全部行测卷 → 图片落地 → SQL → 自动导入 MySQL
 用法: python crawl_all.py
 """
-import urllib.request, json, base64, re, os, sys, time
+import urllib.request, json, base64, re, os, sys, time, html as htmllib
 from concurrent.futures import ThreadPoolExecutor
 from Crypto.Cipher import AES
 
@@ -97,6 +97,8 @@ def crawl_paper(sid, source, cat, model):
             if not srcm:
                 return tag
             src = srcm.group(1)
+            # 解码 HTML 实体（&amp; → &），否则公式图 URL 参数错误返回 400
+            src = htmllib.unescape(src)
             if src.startswith('//'):
                 src = 'https:' + src
             elif src.startswith('/'):

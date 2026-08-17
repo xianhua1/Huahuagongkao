@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """批量爬取 saduck 申论题库 → 入库 shenlun 表"""
-import urllib.request, json, re, os, sys, time, subprocess
+import urllib.request, json, re, os, sys, time, subprocess, html as htmllib
 
 TOKEN = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ2aXBFbmRUaW1lIjoiMTc4NDg3NDU0MDAwMCIsInNpZ24iOiIwNzMxNjA0NTkxIiwidmlwVHlwZSI6IjAiLCJ2aXBTdGFydFRpbWUiOiIxNzg0NjE1MzQwMDAwIiwiayI6IiIsImtGIjoiIiwiZXhwIjoxNzg4NzA1MzI4LCJlbWFpbCI6IjEzNzc4MTAxNDdAcXEuY29tIn0.UtmrtXi-VNnGAWGqm2JuWOOSbpjjwb3HD5iY4knund8'
 IMG_DIR = r'C:\Users\admin\DSH\data\images'
@@ -70,6 +70,7 @@ def crawl(sl_id, test_name, type_name):
             if not srcm:
                 return tag
             src = srcm.group(1)
+            src = htmllib.unescape(src)  # 解码 &amp; → &，公式图 URL 才能下载
             if src.startswith('//'):
                 src = 'https:' + src
             elif src.startswith('/'):
