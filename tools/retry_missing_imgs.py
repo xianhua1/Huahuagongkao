@@ -4,9 +4,9 @@ import os, re, subprocess, sys, time, json
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from crawl_all import (TOKEN, KEY_LIST, KEY_ENC, IMG_DIR, MYSQL, crawl_paper, import_sql, aes_decrypt, post, code_of)
 
-# 1) 缺失图片的卷 code
+# 1) 缺失图片的卷 code（覆盖 stem/analysis/options/material 全部字段）
 rows = subprocess.run([MYSQL, '-u', 'root', '-p123456', '-N', '-B', '--default-character-set=utf8mb4', 'ruoyi',
-                       '-e', "SELECT stem, analysis FROM exam_question WHERE has_image=1"],
+                       '-e', "SELECT stem, analysis FROM exam_question WHERE has_image=1; SELECT content FROM exam_material"],
                       capture_output=True, text=True, encoding='utf-8', errors='replace').stdout
 refs = set()
 for line in rows.splitlines():
