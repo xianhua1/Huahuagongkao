@@ -129,4 +129,5 @@ xss:
   urlPatterns: /system/*,/monitor/*,/tool/*
 
 exam:
-  image-path: C:/Users/admin/DSH/data/images/
+  # 题库图片目录（相对路径，基于后端启动时的工作目录；也可用环境变量 HUAHUA_IMAGE_PATH 覆盖）
+  image-path: ${HUAHUA_IMAGE_PATH:./data/images/}
