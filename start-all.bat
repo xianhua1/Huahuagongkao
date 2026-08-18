@@ -68,7 +68,8 @@ if %errorlevel%==0 (
       where java >nul 2>nul && set "JAVA_CMD=java"
     )
     if defined JAVA_CMD (
-      start "RuoYi-Backend" /min cmd /c "cd /d %ROOT% && "%JAVA_CMD%" -jar "%JAR%""
+      rem 脚本开头已 cd 到项目根，start 子进程继承该工作目录，图片相对路径自动生效
+      start "RuoYi-Backend" /min "%JAVA_CMD%" -jar "%JAR%"
     ) else (
       echo [X] 未找到 JDK！请安装 JDK8+ 或设置 JAVA_HOME
     )
@@ -85,7 +86,7 @@ if %errorlevel%==0 (
     echo [X] 未找到前端构建产物 dist！请先运行 install.bat
   ) else (
     echo [..] 启动前端 ...
-    start "RuoYi-Frontend" /min cmd /c "cd /d %ROOT%ruoyi && node server.cjs"
+    start "RuoYi-Frontend" /min cmd /c "cd /d ""%ROOT%ruoyi"" && node server.cjs"
     timeout /t 3 /nobreak >nul
   )
 )
