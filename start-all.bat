@@ -1,101 +1,99 @@
 @echo off
-chcp 65001 >nul
 setlocal
-title èŠ±èŠ±å…¬è€ƒåˆ·é¢˜ - ä¸€é”®å¯åŠ¨
+title »¨»¨¹«¿¼Ë¢Ìâ - Ò»¼üÆô¶¯
 echo ============================================
-echo   èŠ±èŠ±å…¬è€ƒåˆ·é¢˜ - ä¸€é”®å¯åŠ¨
+echo   »¨»¨¹«¿¼Ë¢Ìâ - Ò»¼üÆô¶¯
 echo ============================================
 echo.
 
-rem è„šæœ¬æ‰€åœ¨ç›®å½•ï¼ˆé¡¹ç›®æ ¹ï¼Œå…¼å®¹ä»»æ„è·¯å¾„éƒ¨ç½²ï¼‰
+rem ½Å±¾ËùÔÚÄ¿Â¼£¨ÏîÄ¿¸ù£¬¼æÈİÈÎÒâÂ·¾¶²¿Êğ£©
 set "ROOT=%~dp0"
 cd /d "%ROOT%"
 
 rem ---------- MySQL (3306) ----------
 netstat -ano | findstr ":3306" | findstr "LISTENING" >nul
-if %errorlevel%==0 (
-  echo [OK] MySQL å·²åœ¨è¿è¡Œ
-) else (
-  echo [..] å¯åŠ¨ MySQL ...
-  rem ä¼˜å…ˆç”¨é¡¹ç›®è‡ªå¸¦ tools\mysql57ï¼Œå¦åˆ™å°è¯•ç³»ç»Ÿ MySQL
-  if exist "%ROOT%tools\mysql57\bin\mysqld.exe" (
-    start "MySQL" /min "%ROOT%tools\mysql57\bin\mysqld.exe" --defaults-file="%ROOT%tools\mysql57\my.ini"
-  ) else (
-    rem å°è¯• Windows æœåŠ¡
-    net start MySQL >nul 2>nul
-    if %errorlevel% neq 0 (
-      echo [X] æœªæ‰¾åˆ° MySQLï¼è¯·å®‰è£… MySQL 5.7+ å¹¶å¯åŠ¨æœåŠ¡ï¼Œæˆ–æ”¾åˆ° tools\mysql57\
-    )
-  )
-  timeout /t 8 /nobreak >nul
-)
+if %errorlevel%==0 goto my_ok
+echo [..] Æô¶¯ MySQL ...
+rem ÓÅÏÈÓÃÏîÄ¿×Ô´ø tools\mysql57£¬·ñÔò³¢ÊÔÏµÍ³ MySQL
+if exist "%ROOT%tools\mysql57\bin\mysqld.exe" goto my_own
+rem ³¢ÊÔ Windows ·şÎñ
+net start MySQL >nul 2>nul
+if %errorlevel%==0 goto my_ok
+echo [X] Î´ÕÒµ½ MySQL£¡Çë°²×° MySQL 5.7+ ²¢Æô¶¯·şÎñ£¬»ò·Åµ½ tools\mysql57\
+goto my_done
+:my_own
+start "MySQL" /min "%ROOT%tools\mysql57\bin\mysqld.exe" --defaults-file="%ROOT%tools\mysql57\my.ini"
+timeout /t 8 /nobreak >nul
+goto my_done
+:my_ok
+echo [OK] MySQL ÒÑÔÚÔËĞĞ
+:my_done
 
 rem ---------- Redis (6379) ----------
 netstat -ano | findstr ":6379" | findstr "LISTENING" >nul
-if %errorlevel%==0 (
-  echo [OK] Redis å·²åœ¨è¿è¡Œ
-) else (
-  echo [..] å¯åŠ¨ Redis ...
-  if exist "%ROOT%tools\redis\redis-server.exe" (
-    start "Redis" /min "%ROOT%tools\redis\redis-server.exe" --port 6379
-  ) else (
-    where redis-server >nul 2>nul
-    if %errorlevel%==0 (
-      start "Redis" /min redis-server --port 6379
-    ) else (
-      echo [X] æœªæ‰¾åˆ° Redisï¼è¯·å®‰è£… Redis å¹¶å¯åŠ¨ï¼Œæˆ–æ”¾åˆ° tools\redis\
-    )
-  )
-  timeout /t 3 /nobreak >nul
-)
+if %errorlevel%==0 goto rd_ok
+echo [..] Æô¶¯ Redis ...
+if exist "%ROOT%tools\redis\redis-server.exe" goto rd_own
+where redis-server >nul 2>nul
+if %errorlevel%==0 goto rd_sys
+echo [X] Î´ÕÒµ½ Redis£¡Çë°²×° Redis ²¢Æô¶¯£¬»ò·Åµ½ tools\redis\
+goto rd_done
+:rd_own
+start "Redis" /min "%ROOT%tools\redis\redis-server.exe" --port 6379
+timeout /t 3 /nobreak >nul
+goto rd_done
+:rd_sys
+start "Redis" /min redis-server --port 6379
+timeout /t 3 /nobreak >nul
+goto rd_done
+:rd_ok
+echo [OK] Redis ÒÑÔÚÔËĞĞ
+:rd_done
 
-rem ---------- åç«¯ (8080) ----------
+rem ---------- ºó¶Ë (8080) ----------
 set "JAR=%ROOT%ruoyi-backend\ruoyi-admin\target\ruoyi-admin.jar"
 netstat -ano | findstr ":8080" | findstr "LISTENING" >nul
-if %errorlevel%==0 (
-  echo [OK] åç«¯æœåŠ¡å·²åœ¨è¿è¡Œ
-) else (
-  if not exist "%JAR%" (
-    echo [X] æœªæ‰¾åˆ°åç«¯ jarï¼è¯·å…ˆè¿è¡Œ install.bat æ„å»ºåç«¯
-  ) else (
-    echo [..] å¯åŠ¨åç«¯ (Spring Boot) ...
-    rem å·¥ä½œç›®å½•è®¾ä¸ºé¡¹ç›®æ ¹ï¼Œä¿è¯å›¾ç‰‡ç›¸å¯¹è·¯å¾„ ./data/images/ ç”Ÿæ•ˆ
-    set "JAVA_CMD="
-    if defined JAVA_HOME (
-      if exist "%JAVA_HOME%\bin\java.exe" set "JAVA_CMD=%JAVA_HOME%\bin\java.exe"
-    )
-    if not defined JAVA_CMD (
-      where java >nul 2>nul && set "JAVA_CMD=java"
-    )
-    if defined JAVA_CMD (
-      rem è„šæœ¬å¼€å¤´å·² cd åˆ°é¡¹ç›®æ ¹ï¼Œstart å­è¿›ç¨‹ç»§æ‰¿è¯¥å·¥ä½œç›®å½•ï¼Œå›¾ç‰‡ç›¸å¯¹è·¯å¾„è‡ªåŠ¨ç”Ÿæ•ˆ
-      start "RuoYi-Backend" /min "%JAVA_CMD%" -jar "%JAR%"
-    ) else (
-      echo [X] æœªæ‰¾åˆ° JDKï¼è¯·å®‰è£… JDK8+ æˆ–è®¾ç½® JAVA_HOME
-    )
-    timeout /t 45 /nobreak >nul
-  )
-)
+if %errorlevel%==0 goto be_ok
+if not exist "%JAR%" goto be_nojar
+echo [..] Æô¶¯ºó¶Ë (Spring Boot) ...
+set "JAVA_CMD="
+if defined JAVA_HOME if exist "%JAVA_HOME%\bin\java.exe" set "JAVA_CMD=%JAVA_HOME%\bin\java.exe"
+if not defined JAVA_CMD where java >nul 2>nul && set "JAVA_CMD=java"
+if defined JAVA_CMD goto be_start
+echo [X] Î´ÕÒµ½ JDK£¡Çë°²×° JDK8+ »òÉèÖÃ JAVA_HOME
+goto be_done
+:be_start
+rem ½Å±¾¿ªÍ·ÒÑ cd µ½ÏîÄ¿¸ù£¬start ×Ó½ø³Ì¼Ì³Ğ¸Ã¹¤×÷Ä¿Â¼£¬Í¼Æ¬Ïà¶ÔÂ·¾¶×Ô¶¯ÉúĞ§
+start "RuoYi-Backend" /min "%JAVA_CMD%" -jar "%JAR%"
+timeout /t 45 /nobreak >nul
+goto be_done
+:be_nojar
+echo [X] Î´ÕÒµ½ºó¶Ë jar£¡ÇëÏÈÔËĞĞ install.bat ¹¹½¨ºó¶Ë
+goto be_done
+:be_ok
+echo [OK] ºó¶Ë·şÎñÒÑÔÚÔËĞĞ
+:be_done
 
-rem ---------- å‰ç«¯ (8090) ----------
+rem ---------- Ç°¶Ë (8090) ----------
 netstat -ano | findstr ":8090" | findstr "LISTENING" >nul
-if %errorlevel%==0 (
-  echo [OK] å‰ç«¯æœåŠ¡å·²åœ¨è¿è¡Œ
-) else (
-  if not exist "%ROOT%ruoyi\dist\index.html" (
-    echo [X] æœªæ‰¾åˆ°å‰ç«¯æ„å»ºäº§ç‰© distï¼è¯·å…ˆè¿è¡Œ install.bat
-  ) else (
-    echo [..] å¯åŠ¨å‰ç«¯ ...
-    start "RuoYi-Frontend" /min cmd /c "cd /d ""%ROOT%ruoyi"" && node server.cjs"
-    timeout /t 3 /nobreak >nul
-  )
-)
+if %errorlevel%==0 goto fe_ok
+if not exist "%ROOT%ruoyi\dist\index.html" goto fe_nodist
+echo [..] Æô¶¯Ç°¶Ë ...
+start "RuoYi-Frontend" /min cmd /c "cd /d ""%ROOT%ruoyi"" && node server.cjs"
+timeout /t 3 /nobreak >nul
+goto fe_done
+:fe_nodist
+echo [X] Î´ÕÒµ½Ç°¶Ë¹¹½¨²úÎï dist£¡ÇëÏÈÔËĞĞ install.bat
+goto fe_done
+:fe_ok
+echo [OK] Ç°¶Ë·şÎñÒÑÔÚÔËĞĞ
+:fe_done
 
 echo.
 echo ============================================
-echo   åˆ·é¢˜ç½‘ç«™:  http://127.0.0.1:8090
-echo   è´¦å·: admin    å¯†ç : admin123
-echo   åç«¯ API: http://127.0.0.1:8080
+echo   Ë¢ÌâÍøÕ¾:  http://127.0.0.1:8090
+echo   ÕËºÅ: admin    ÃÜÂë: admin123
+echo   ºó¶Ë API: http://127.0.0.1:8080
 echo ============================================
 start http://127.0.0.1:8090
 pause

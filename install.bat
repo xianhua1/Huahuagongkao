@@ -1,53 +1,52 @@
 @echo off
-chcp 65001 >nul
 setlocal
-title èŠ±èŠ±å…¬è€ƒåˆ·é¢˜ - ä¸€é”®å®‰è£…
+title »¨»¨¹«¿¼Ë¢Ìâ - Ò»¼ü°²×°
 echo ============================================
-echo   èŠ±èŠ±å…¬è€ƒåˆ·é¢˜ - ä¸€é”®å®‰è£…è„šæœ¬
-echo   æœ¬è„šæœ¬å°†å®‰è£…å‰ç«¯ä¾èµ–å¹¶æ„å»ºå‰åç«¯
+echo   »¨»¨¹«¿¼Ë¢Ìâ - Ò»¼ü°²×°½Å±¾
+echo   ±¾½Å±¾½«°²×°Ç°¶ËÒÀÀµ²¢¹¹½¨Ç°ºó¶Ë
 echo ============================================
 echo.
 
-rem è„šæœ¬æ‰€åœ¨ç›®å½•ï¼ˆé¡¹ç›®æ ¹ï¼‰
+rem ½Å±¾ËùÔÚÄ¿Â¼£¨ÏîÄ¿¸ù£©
 set "ROOT=%~dp0"
 cd /d "%ROOT%"
 
-rem ---------- æ£€æŸ¥ Node.js ----------
+rem ---------- ¼ì²é Node.js ----------
 where node >nul 2>nul
 if %errorlevel%==0 (
   for /f "delims=" %%v in ('node -v') do set "NODE_V=%%v"
   echo [OK] Node.js: %NODE_V%
 ) else (
-  echo [X] æœªæ£€æµ‹åˆ° Node.jsï¼Œè¯·å…ˆå®‰è£… Node.js 18+ï¼šhttps://nodejs.org/
-  echo     å®‰è£…åé‡æ–°è¿è¡Œæœ¬è„šæœ¬
+  echo [X] Î´¼ì²âµ½ Node.js£¬ÇëÏÈ°²×° Node.js 18+£ºhttps://nodejs.org/
+  echo     °²×°ºóÖØĞÂÔËĞĞ±¾½Å±¾
   pause
   exit /b 1
 )
 
-rem ---------- å®‰è£…å‰ç«¯ä¾èµ– ----------
+rem ---------- °²×°Ç°¶ËÒÀÀµ ----------
 echo.
-echo [1/4] å®‰è£…å‰ç«¯ä¾èµ– (npm install) ...
+echo [1/4] °²×°Ç°¶ËÒÀÀµ (npm install) ...
 cd /d "%ROOT%ruoyi"
 call npm install
 if %errorlevel% neq 0 (
-  echo [X] npm install å¤±è´¥ï¼Œè¯·æ£€æŸ¥ç½‘ç»œåé‡è¯•
+  echo [X] npm install Ê§°Ü£¬Çë¼ì²éÍøÂçºóÖØÊÔ
   pause
   exit /b 1
 )
-echo [OK] å‰ç«¯ä¾èµ–å®‰è£…å®Œæˆ
+echo [OK] Ç°¶ËÒÀÀµ°²×°Íê³É
 
-rem ---------- æ„å»ºå‰ç«¯ ----------
+rem ---------- ¹¹½¨Ç°¶Ë ----------
 echo.
-echo [2/4] æ„å»ºå‰ç«¯ (npm run build:prod) ...
+echo [2/4] ¹¹½¨Ç°¶Ë (npm run build:prod) ...
 call npm run build:prod
 if %errorlevel% neq 0 (
-  echo [X] å‰ç«¯æ„å»ºå¤±è´¥
+  echo [X] Ç°¶Ë¹¹½¨Ê§°Ü
   pause
   exit /b 1
 )
-echo [OK] å‰ç«¯æ„å»ºå®Œæˆ (dist/)
+echo [OK] Ç°¶Ë¹¹½¨Íê³É (dist/)
 
-rem ---------- æ£€æŸ¥ JDK ----------
+rem ---------- ¼ì²é JDK ----------
 echo.
 set "JAVA_OK="
 if defined JAVA_HOME (
@@ -57,38 +56,39 @@ if not defined JAVA_OK (
   where java >nul 2>nul && set "JAVA_OK=1"
 )
 
-if defined JAVA_OK (
-  rem ---------- æ„å»ºåç«¯ ----------
-  echo [3/4] æ„å»ºåç«¯ (mvn package) ...
-  cd /d "%ROOT%ruoyi-backend"
-  call mvn package -DskipTests -q
-  if %errorlevel% neq 0 (
-    echo [X] åç«¯æ„å»ºå¤±è´¥ï¼ˆè¯·ç¡®è®¤å·²å®‰è£… JDK8+ ä¸ Mavenï¼‰
-    pause
-    exit /b 1
-  )
-  echo [OK] åç«¯æ„å»ºå®Œæˆ (ruoyi-admin.jar)
-) else (
-  echo [..] æœªæ£€æµ‹åˆ° JDKï¼Œè·³è¿‡åç«¯æ„å»º
-  echo      è¯·å®‰è£… JDK8+ åæ‰§è¡Œ: cd ruoyi-backend ^&^& mvn package -DskipTests
-)
+if defined JAVA_OK goto build_ok
+echo [..] Î´¼ì²âµ½ JDK£¬Ìø¹ıºó¶Ë¹¹½¨
+echo      Çë°²×° JDK8+ ºóÖ´ĞĞ: cd ruoyi-backend ^&^& mvn package -DskipTests
+goto build_done
+:build_ok
+echo [3/4] ¹¹½¨ºó¶Ë (mvn package) ...
+cd /d "%ROOT%ruoyi-backend"
+call mvn package -DskipTests -q
+if errorlevel 1 goto build_fail
+echo [OK] ºó¶Ë¹¹½¨Íê³É (ruoyi-admin.jar)
+goto build_done
+:build_fail
+echo [X] ºó¶Ë¹¹½¨Ê§°Ü£¨ÇëÈ·ÈÏÒÑ°²×° JDK8+ Óë Maven£©
+pause
+exit /b 1
+:build_done
 
-rem ---------- æ•°æ®åº“è¯´æ˜ ----------
+rem ---------- Êı¾İ¿âËµÃ÷ ----------
 echo.
-echo [4/4] æ•°æ®åº“åˆå§‹åŒ–è¯´æ˜
+echo [4/4] Êı¾İ¿â³õÊ¼»¯ËµÃ÷
 echo ------------------------------------------------------------
-echo   éœ€è¦å¯¼å…¥ä»¥ä¸‹ SQLï¼ˆæŒ‰é¡ºåºï¼Œåœ¨ MySQL ä¸­æ‰§è¡Œï¼‰:
-echo     1. ruoyi-backend\sql\ry_20240629.sql        (è‹¥ä¾åŸºç¡€è¡¨+èœå•)
-echo     2. data\sql\exam_schema.sql                 (åˆ·é¢˜è¡¨ç»“æ„+èœå•)
-echo     3. data\sql\shenlun_schema.sql              (ç”³è®ºè¡¨ç»“æ„+èœå•)
-echo     4. data\sql\exam_data_full.sql              (è¡Œæµ‹é¢˜åº“ 167å¥— 19621é¢˜)
-echo     5. data\sql\shenlun_data_full.sql           (ç”³è®ºé¢˜åº“ 700å¥—)
+echo   ĞèÒªµ¼ÈëÒÔÏÂ SQL£¨°´Ë³Ğò£¬ÔÚ MySQL ÖĞÖ´ĞĞ£©:
+echo     1. ruoyi-backend\sql\ry_20240629.sql        (ÈôÒÀ»ù´¡±í+²Ëµ¥)
+echo     2. data\sql\exam_schema.sql                 (Ë¢Ìâ±í½á¹¹+²Ëµ¥)
+echo     3. data\sql\shenlun_schema.sql              (ÉêÂÛ±í½á¹¹+²Ëµ¥)
+echo     4. data\sql\exam_data_full.sql              (ĞĞ²âÌâ¿â 167Ì× 19621Ìâ)
+echo     5. data\sql\shenlun_data_full.sql           (ÉêÂÛÌâ¿â 700Ì×)
 echo ------------------------------------------------------------
-echo   è¯´æ˜: æ•°æ®åº“åä¸º ruoyiï¼Œè´¦å· root / å¯†ç  123456
-echo         å›¾ç‰‡ç›®å½•ä¸º data\images\ï¼ˆè‹¥ç¼ºå¤±ï¼Œé¢˜ç›®å›¾ç‰‡ä¸æ˜¾ç¤ºï¼Œä¸å½±å“æ–‡å­—ï¼‰
+echo   ËµÃ÷: Êı¾İ¿âÃûÎª ruoyi£¬ÕËºÅ root / ÃÜÂë 123456
+echo         Í¼Æ¬Ä¿Â¼Îª data\images\£¨ÈôÈ±Ê§£¬ÌâÄ¿Í¼Æ¬²»ÏÔÊ¾£¬²»Ó°ÏìÎÄ×Ö£©
 echo.
 echo ============================================
-echo   å®‰è£…å®Œæˆï¼
-echo   è¿è¡Œ start-all.bat å³å¯å¯åŠ¨é¡¹ç›®
+echo   °²×°Íê³É£¡
+echo   ÔËĞĞ start-all.bat ¼´¿ÉÆô¶¯ÏîÄ¿
 echo ============================================
 pause
