@@ -109,7 +109,7 @@
     <!-- AI 评分说明（配置在服务器环境变量，不在此设置） -->
     <el-dialog v-model="llmShow" title="🤖 AI 评分说明" width="460px">
       <div class="llm-tip">
-        AI 评分由服务器端调用大模型完成，密钥通过服务器环境变量配置（<code>DEEPSEEK_API_KEY</code> / <code>DEEPSEEK_BASE_URL</code> / <code>DEEPSEEK_MODEL</code>），不会在页面中暴露。
+        AI 评分由服务器端调用大模型完成，密钥通过服务器环境变量配置（<code>HUAHUA_AI_KEY</code> / <code>HUAHUA_AI_BASE_URL</code> / <code>HUAHUA_AI_MODEL</code>），不会在页面中暴露。
       </div>
       <template #footer>
         <el-button type="primary" @click="llmShow = false">知道了</el-button>

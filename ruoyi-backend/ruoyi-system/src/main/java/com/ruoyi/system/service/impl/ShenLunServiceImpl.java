@@ -165,10 +165,10 @@ public class ShenLunServiceImpl implements IShenLunService {
     @Override
     public Map<String, Object> grade(Long userId, Long paperId, String content) {
         Map<String, Object> result = new HashMap<>();
-        String apiKey = System.getenv("DEEPSEEK_API_KEY");
+        String apiKey = System.getenv("HUAHUA_AI_KEY");
         if (apiKey == null || apiKey.isEmpty()) {
             result.put("success", false);
-            result.put("msg", "未配置环境变量 DEEPSEEK_API_KEY，请联系管理员配置");
+            result.put("msg", "未配置环境变量 HUAHUA_AI_KEY，请联系管理员配置");
             return result;
         }
         List<ShenLunQuestion> questions = shenLunMapper.selectQuestionsByPaperId(paperId);
@@ -227,11 +227,11 @@ public class ShenLunServiceImpl implements IShenLunService {
 
     private String callLlm(String apiKey, String prompt) throws Exception {
         // Anthropic 兼容端点（DeepSeek: https://api.deepseek.com/anthropic）
-        String base = System.getenv("DEEPSEEK_BASE_URL");
+        String base = System.getenv("HUAHUA_AI_BASE_URL");
         if (base == null || base.isEmpty()) {
             base = "https://api.deepseek.com/anthropic";
         }
-        String model = System.getenv("DEEPSEEK_MODEL");
+        String model = System.getenv("HUAHUA_AI_MODEL");
         if (model == null || model.isEmpty()) {
             model = "deepseek-v4-flash";
         }
@@ -302,15 +302,15 @@ public class ShenLunServiceImpl implements IShenLunService {
     public Map<String, String> getLlmConfig() {
         // 配置一律来自环境变量（不落盘、不暴露）
         Map<String, String> cfg = new HashMap<>();
-        cfg.put("baseUrl", System.getenv("DEEPSEEK_BASE_URL") != null ? System.getenv("DEEPSEEK_BASE_URL") : "https://api.deepseek.com/anthropic");
-        cfg.put("model", System.getenv("DEEPSEEK_MODEL") != null ? System.getenv("DEEPSEEK_MODEL") : "deepseek-v4-flash");
-        String key = System.getenv("DEEPSEEK_API_KEY");
+        cfg.put("baseUrl", System.getenv("HUAHUA_AI_BASE_URL") != null ? System.getenv("HUAHUA_AI_BASE_URL") : "https://api.deepseek.com/anthropic");
+        cfg.put("model", System.getenv("HUAHUA_AI_MODEL") != null ? System.getenv("HUAHUA_AI_MODEL") : "deepseek-v4-flash");
+        String key = System.getenv("HUAHUA_AI_KEY");
         cfg.put("apiKeySet", key != null && !key.isEmpty() ? "1" : "0");
         return cfg;
     }
 
     @Override
     public void saveLlmConfig(Map<String, String> cfg) {
-        throw new RuntimeException("AI 评分配置通过服务器环境变量设置（DEEPSEEK_API_KEY / DEEPSEEK_BASE_URL / DEEPSEEK_MODEL），不支持页面修改");
+        throw new RuntimeException("AI 评分配置通过服务器环境变量设置（HUAHUA_AI_KEY / HUAHUA_AI_BASE_URL / HUAHUA_AI_MODEL），不支持页面修改");
     }
 }
