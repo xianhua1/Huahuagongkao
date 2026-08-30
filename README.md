@@ -76,15 +76,18 @@ install.bat
 ```sql
 -- 1. 若依基础表 + 菜单
 source ruoyi-backend/sql/ry_20240629.sql;
--- 2. 刷题表结构 + 菜单
+-- 2. 刷题表结构 + 基础菜单
 source data/sql/exam_schema.sql;
--- 3. 申论表结构 + 菜单
+-- 3. 申论表结构 + 申论菜单
 source data/sql/shenlun_schema.sql;
--- 4. 行测题库（167 套 / 19595 题）
+-- 4. 备考中心等全部业务菜单（必做！否则页面打不开）
+source data/sql/menus_prep_full.sql;
+-- 5. 行测题库（167 套 / 19595 题）
 source data/sql/exam_data_full.sql;
--- 5. 申论题库（700 套）
+-- 6. 申论题库（700 套）
 source data/sql/shenlun_data_full.sql;
 ```
+> ⚠️ 第 4 步 `menus_prep_full.sql` 不能省略：它补全「备考中心/学习计划/学习报告/词库/计时工具/行测助手」等全部菜单并授权给角色，缺了会导致大量页面无法访问。
 
 ### 3. 配置 AI 评分（可选）
 申论 AI 评分通过环境变量配置，未配置时仅 AI 评分不可用，其余功能正常：
